@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+  web:
+    image: sentry:9.1.1
+    environment:
+      SENTRY_SECRET_KEY: "!j@6^1y5ix5%rum*xs14z=(vfu2nl!(=5fwg*kj+g#pm8=8)m)"
+      SENTRY_POSTGRES_HOST: "192.168.31.226"
+      SENTRY_REDIS_HOST: "192.168.31.226"
+      SENTRY_DB_NAME: "sentry"
+      SENTRY_DB_PASSWORD: "whcxhwyz"
+      SENTRY_DB_USER: "postgres"
+
+
+    ports:
+      - 9000:9000
+
+  cron:
+    image: sentry:9.1.1
+    command: run cron
+    environment:
+      SENTRY_SECRET_KEY: "!j@6^1y5ix5%rum*xs14z=(vfu2nl!(=5fwg*kj+g#pm8=8)m)"
+      SENTRY_POSTGRES_HOST: "192.168.31.226"
+      SENTRY_REDIS_HOST: "192.168.31.226"
+      SENTRY_DB_NAME: "sentry"
+      SENTRY_DB_PASSWORD: "whcxhwyz"
+      SENTRY_DB_USER: "postgres"
+
+
+
+  worker:
+    image: sentry:9.1.1
+    command: run worker
+    environment:
+      SENTRY_SECRET_KEY: "!j@6^1y5ix5%rum*xs14z=(vfu2nl!(=5fwg*kj+g#pm8=8)m)"
+      SENTRY_POSTGRES_HOST: "192.168.31.226"
+      SENTRY_REDIS_HOST: "192.168.31.226"
+      SENTRY_DB_NAME: "sentry"
+      SENTRY_DB_PASSWORD: "whcxhwyz"
+      SENTRY_DB_USER: "postgres"

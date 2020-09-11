@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+  postgres:
+    image: 'docker.io/bitnami/postgres'
+    ports:
+    environment:
+      - POSTGRES_PASSWORD=dataknown1234
+    volumes:
+      - '/etc/localtime:/etc/localtime'
+      - 'postgres_data:/var/lib/postgresql/data'
+    environment:
+      - POSTGRES_PASSWORD=dataknown1234
+  kong:
+    image: 'docker.io/kong'
+    ports:
+      # http 端口
+      - '31016:8000'
+      - '31017:8001'
+      # https 访问端口
+      - '31018:8443'
+      - '31019:8444'
+    environment:
+      - KONG_PG_HOST=172.17.0.1
+      - KONG_PG_PORT=31014
+      - KONG_PG_PASSWORD=dataknown1234
+      - KONG_PG_DB=kong
+      - KONG_PG_USER=postgres
+      - KONG_DATABASE=KONG_DATABASE
+    depends_on:
+      -postgres
+  konga:
+    image: 'docker.io/pantsel/konga'
+    ports:
+      - '31020:1337'
+    volumes:
+      - 'konga_data:/app/kongadata'
+      - 'cert:/cert'
+    environment:
+      - TOKEN_SECRET=JvPpxNjuNk6x
+      - SSL_KEY_PATH=z/cert/2.key
+      - SSL_CRT_PATH=/cert/1.crt
+    depends_on:
+      - kong
+
+volumes:
+  postgres_data:
+    driver: local
+  konga_data:
+    driver: local
+  cert:
+    driver: local

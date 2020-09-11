@@ -1,0 +1,21 @@
+version: "3"
+services:
+  web:
+    container_name: "z_smartcall_web"
+    image: "server.aiknown.cn:31003/z_smartcall/z_smartcall_WEB:${WEB_VERSION}"
+    ports:
+      - "8000:80"
+    depends_on:
+      - server
+    environment:
+      # 后台服务地址
+      - SERVER_URL=http://server:8000
+      # 权限服务地址
+      - AUTH_URL=http://172.17.0.1:40016
+    deploy:
+      restart_policy: condition:any
+  server:
+    container_name: z_smartcall_server
+    image: server.aiknown.cn:31003/z_smartcall/z_smartcall_server:${SERVER_VERSION}
+    ports:
+      - 8000:8000
