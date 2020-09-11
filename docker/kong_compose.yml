@@ -6,13 +6,13 @@ services:
     ports:
     environment:
       - POSTGRES_PASSWORD=dataknown1234
+    network_mode: bridge
     volumes:
       - '/etc/localtime:/etc/localtime'
       - 'postgres_data:/var/lib/postgresql/data'
-    environment:
-      - POSTGRES_PASSWORD=dataknown1234
   kong:
     image: 'docker.io/kong'
+    network_mode: bridge
     ports:
       # http 端口
       - '31016:8000'
@@ -21,16 +21,17 @@ services:
       - '31018:8443'
       - '31019:8444'
     environment:
+      - KONG_DATABASE=postgres
       - KONG_PG_HOST=172.17.0.1
       - KONG_PG_PORT=31014
+      - KONG_PG_USER=postgres
       - KONG_PG_PASSWORD=dataknown1234
       - KONG_PG_DB=kong
-      - KONG_PG_USER=postgres
-      - KONG_DATABASE=KONG_DATABASE
     depends_on:
       -postgres
   konga:
     image: 'docker.io/pantsel/konga'
+    network_mode: bridge
     ports:
       - '31020:1337'
     volumes:
@@ -42,7 +43,6 @@ services:
       - SSL_CRT_PATH=/cert/1.crt
     depends_on:
       - kong
-
 volumes:
   postgres_data:
     driver: local
