@@ -1,0 +1,39 @@
+version: "3"
+services:
+  user_auth:
+    container_name: user_auth
+    restart: always
+    image: server.aiknown.cn:31003/z_ai_frame/user_auth:${USER_AUTH_SERVER_VERSION}
+    ports:
+      - ${USER_AUTH_SERVER_PORT}:5000
+    environment:
+      CELERY_BROKER: "redis://:{REDIS_PASSWORD}@172.17.0.1:${USER_AUTH_REDIS_PORT}"
+      PROXY_SERVER_URL: "http://172.17.0.1:${USER_AUTH_POSTGREST_PORT}"
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@172.17.0.1:${DB_PORT}/dataknown"
+    depends_on:
+      - user_auth_redis
+      - postgres_dataknown_user_auth
+    network_mode: bridge
+
+  postgres_dataknown_user_auth:
+    container_name: postgres_dataknown_user_auth
+    restart: always
+    image: docker.io/postgrest/postgrest
+    ports:
+      - ${USER_AUTH_POSTGREST_PORT}:3000
+    environment:
+      PGRST_DB_URI: "postgres://postgres:${POSTGRES_PASSWORD}@172.17.0.1:${DB_PORT}/dataknown"
+      PGRST_DB_SCHEMA: "user_auth"
+      PGRST_DB_ANON_ROLE: "postgres"
+    network_mode: bridge
+
+  user_auth_redis:
+    container_name: user_auth_redis
+    restart: always
+    image: docker.io/redis
+    ports:
+        - ${USER_AUTH_REDIS_PORT}:6379
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    network_mode: bridge
+
+

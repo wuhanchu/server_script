@@ -1,0 +1,59 @@
+version: "3"
+services:
+  z_ai_service_web:
+    container_name: z_ai_service_web
+    restart: always
+    image: server.aiknown.cn:31003/z_ai_service/z_ai_service_web:${Z_AI_SERVICE_WEB_VERSION}
+    ports:
+      - ${Z_AI_SERVICE_WEB_PORT}:80
+    depends_on:
+      - z_ai_service_server
+    environment:
+      # 后台服务地址
+      SERVER_URL: http://172.17.0.1:${Z_AI_SERVICE_SERVER_PORT}
+      # 权限服务地址
+      AUTH_URL: http://172.17.0.1:${USER_AUTH_SERVER_PORT}
+    restart: always
+    network_mode: bridge
+
+  z_ai_service_server:
+    container_name: z_ai_service_server
+    restart: always
+    image: server.aiknown.cn:31003/z_ai_service/z_ai_service_server:${Z_AI_SERVICE_SERVER_VERSION}
+    ports:
+      - ${Z_AI_SERVICE_SERVER_PORT}:5000
+    environment:
+      CELERY_BROKER: "redis://:{REDIS_PASSWORD}@redis:6379"
+      PROXY_SERVER_URL: "http://postgrest:3000"
+      FILE_SERVER_PREFIX: ${Z_AI_SERVICE_FILE_SERVER_PREFIX_DEV}
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@172.17.0.1:${DB_PORT}/dataknown"
+    volumes:
+      - z_markgo_items:/opt/www/items
+    network_mode: bridge
+    depends_on:
+      - z_ai_service_redis
+      - postgres_dataknown_z_ai_service
+
+  postgres_dataknown_z_ai_service:
+    container_name: postgres_dataknown_z_ai_service
+    restart: always
+    image: docker.io/postgrest/postgrest
+    ports:
+      - ${Z_AI_SERVICE_POSTGREST_PORT}:3000
+    environment:
+      PGRST_DB_URI: "postgres://postgres:${POSTGRES_PASSWORD}@172.17.0.1:${DB_PORT}/dataknown"
+      PGRST_DB_SCHEMA: "z_ai_service"
+      PGRST_DB_ANON_ROLE: "postgres"
+    network_mode: bridge
+
+  z_ai_service_redis:
+    container_name: z_ai_service_redis
+    restart: always
+    image: redis
+    ports:
+      - ${Z_AI_SERVICE_REDIS_PORT}:6379
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    network_mode: bridge
+
+volumes:
+  z_markgo_items:

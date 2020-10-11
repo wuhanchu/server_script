@@ -19,3 +19,4 @@ services:
     image: server.aiknown.cn:31003/z_smartcall/z_smartcall_server:${SERVER_VERSION}
     ports:
       - 8000:8000
+      

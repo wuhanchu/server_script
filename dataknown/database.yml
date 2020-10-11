@@ -1,0 +1,15 @@
+version: "3"
+services:
+  postgres:
+    container_name: postgres
+    image: docker.io/abcfy2/zhparser
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    network_mode: bridge
+    restart: always
+volumes:
+    postgres_data:
